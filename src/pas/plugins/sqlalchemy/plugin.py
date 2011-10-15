@@ -620,10 +620,13 @@ class Plugin(BasePlugin, Cacheable):
         # application)
         if isinstance(value, basestring):
             value = safedecode(value)
-            cspec = getattr(principal.__table__.columns, sql_attr).type
-            if isinstance(cspec, rdb.String):
-                value = value[:cspec.length]
+            _col = principal.__mapper__.columns.get(sql_attr, None)
+            if isinstance(_col, rdb.Column):
+                cspec = _col.type
+                if isinstance(cspec, rdb.String):
+                    value = value[:cspec.length]
         setattr(principal, sql_attr, value)
+
 
     security.declarePrivate('setPropertiesForUser')
     @graceful_recovery()
